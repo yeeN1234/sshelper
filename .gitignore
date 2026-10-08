@@ -1,0 +1,6 @@
+/target
+*.bak-*
+
+# Local AI-assistant tooling (third-party skills, per-machine settings)
+.claude/
+skills-lock.json

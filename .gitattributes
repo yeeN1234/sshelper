@@ -1,0 +1,8 @@
+# The remote installer runs under `sh` on the target: it must keep LF endings
+# even in a Windows checkout with core.autocrlf=true.
+*.sh   text eol=lf
+*.rs   text eol=lf
+*.toml text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.ps1  text eol=crlf
