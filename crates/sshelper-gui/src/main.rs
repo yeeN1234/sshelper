@@ -16,6 +16,8 @@ fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("sshelper — SSH 公鑰部署")
+            // Matches the Linux .desktop file (StartupWMClass) so the menu icon is used.
+            .with_app_id("sshelper")
             // Fits the whole form and the result view without scrolling.
             .with_inner_size([760.0, 600.0])
             .with_min_inner_size([640.0, 480.0])

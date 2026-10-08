@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=sshelper
+GenericName=SSH Key Deployment
+GenericName[zh_TW]=SSH 公鑰部署
+Comment=Deploy your SSH public key and set up ~/.ssh/config for passwordless login
+Comment[zh_TW]=部署 SSH 公鑰並寫好 ~/.ssh/config，之後免密碼登入
+Exec=sshelper-gui
+Icon=sshelper
+Terminal=false
+Categories=Network;RemoteAccess;
+Keywords=ssh;key;config;passwordless;authorized_keys;
+StartupWMClass=sshelper

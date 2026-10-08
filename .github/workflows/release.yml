@@ -1,0 +1,69 @@
+# Push a tag like v0.1.0 → builds Windows and Linux packages and publishes a
+# GitHub Release with them. The tag must match `version` in Cargo.toml.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release --workspace
+      - name: Package
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}"
+          New-Item -ItemType Directory dist, pkg | Out-Null
+          Copy-Item target/release/sshelper-gui.exe, target/release/sshelper.exe, README.md, LICENSE pkg/
+          Compress-Archive -Path pkg/* -DestinationPath "dist/sshelper-$v-windows-x64.zip"
+          Copy-Item target/release/sshelper-gui.exe "dist/sshelper-gui-$v-windows-x64.exe"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*
+
+  linux:
+    # Older glibc than ubuntu-latest, so the binaries also run on 22.04 / Debian 12.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: GUI build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libxkbcommon-dev libgtk-3-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
+      - run: cargo install cargo-deb --locked
+      - run: cargo build --release --workspace
+      - name: Package
+        run: |
+          v="${{ github.ref_name }}"
+          mkdir -p dist "pkg/sshelper-$v"
+          cargo deb -p sshelper-gui --no-build --output "dist/sshelper_${v#v}_amd64.deb"
+          cp target/release/sshelper-gui target/release/sshelper README.md LICENSE assets/linux/sshelper.desktop "pkg/sshelper-$v/"
+          cp assets/icon/png/sshelper-256.png "pkg/sshelper-$v/sshelper.png"
+          tar -C pkg -czf "dist/sshelper-$v-linux-x64.tar.gz" "sshelper-$v"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*
+
+  publish:
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

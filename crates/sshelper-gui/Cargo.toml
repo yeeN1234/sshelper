@@ -1,6 +1,6 @@
 [package]
 name = "sshelper-gui"
-description = "sshelper graphical interface"
+description = "Deploy your SSH public key and get a passwordless ssh <alias> (GUI and CLI)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -23,3 +23,36 @@ raw-window-handle = "0.6"
 
 [build-dependencies]
 winresource = "0.1.31"
+
+# One .deb ("sshelper") with both programs, the menu entry and the icons.
+# Build with: cargo build --release --workspace && cargo deb -p sshelper-gui --no-build
+[package.metadata.deb]
+name = "sshelper"
+maintainer = "yeeN1234 <92346271+yeeN1234@users.noreply.github.com>"
+copyright = "2026, yeeN1234"
+license-file = ["../../LICENSE", "0"]
+extended-description = """\
+Deploys a local SSH public key to a remote Linux or Windows host and writes \
+~/.ssh/config, so that `ssh <alias>` logs in without a password. \
+Includes a graphical app (sshelper-gui) and a command line tool (sshelper)."""
+section = "net"
+priority = "optional"
+# The GUI dlopens these at run time, so $auto cannot see them (found by starting it on a clean Ubuntu 22.04).
+depends = "$auto, libx11-6, libxcursor1, libxrandr2, libxi6, libxkbcommon0, libxkbcommon-x11-0, libwayland-client0, libgl1, libegl1"
+# ssh is used for the final login test; a CJK font for the Chinese interface.
+recommends = "openssh-client, fonts-noto-cjk, libgl1-mesa-dri"
+assets = [
+    ["target/release/sshelper-gui", "usr/bin/", "755"],
+    ["target/release/sshelper", "usr/bin/", "755"],
+    ["../../assets/linux/sshelper.desktop", "usr/share/applications/", "644"],
+    ["../../assets/icon/png/sshelper-16.png", "usr/share/icons/hicolor/16x16/apps/sshelper.png", "644"],
+    ["../../assets/icon/png/sshelper-24.png", "usr/share/icons/hicolor/24x24/apps/sshelper.png", "644"],
+    ["../../assets/icon/png/sshelper-32.png", "usr/share/icons/hicolor/32x32/apps/sshelper.png", "644"],
+    ["../../assets/icon/png/sshelper-48.png", "usr/share/icons/hicolor/48x48/apps/sshelper.png", "644"],
+    ["../../assets/icon/png/sshelper-64.png", "usr/share/icons/hicolor/64x64/apps/sshelper.png", "644"],
+    ["../../assets/icon/png/sshelper-128.png", "usr/share/icons/hicolor/128x128/apps/sshelper.png", "644"],
+    ["../../assets/icon/png/sshelper-256.png", "usr/share/icons/hicolor/256x256/apps/sshelper.png", "644"],
+    ["../../assets/icon/png/sshelper-512.png", "usr/share/icons/hicolor/512x512/apps/sshelper.png", "644"],
+    ["../../assets/icon/svg/sshelper.svg", "usr/share/icons/hicolor/scalable/apps/sshelper.svg", "644"],
+    ["../../README.md", "usr/share/doc/sshelper/README.md", "644"],
+]
